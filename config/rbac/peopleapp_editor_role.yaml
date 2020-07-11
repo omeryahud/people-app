@@ -1,0 +1,24 @@
+# permissions for end users to edit peopleapps.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: peopleapp-editor-role
+rules:
+- apiGroups:
+  - people.omer.com.omer.com
+  resources:
+  - peopleapps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - people.omer.com.omer.com
+  resources:
+  - peopleapps/status
+  verbs:
+  - get

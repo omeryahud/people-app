@@ -1,0 +1,28 @@
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - people.omer.com.omer.com
+  resources:
+  - peopleapps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - people.omer.com.omer.com
+  resources:
+  - peopleapps/status
+  verbs:
+  - get
+  - patch
+  - update

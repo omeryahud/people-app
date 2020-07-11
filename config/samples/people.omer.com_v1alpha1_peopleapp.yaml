@@ -1,0 +1,7 @@
+apiVersion: people.omer.com.omer.com/v1alpha1
+kind: PeopleApp
+metadata:
+  name: peopleapp-sample
+spec:
+  # Add fields here
+  foo: bar
