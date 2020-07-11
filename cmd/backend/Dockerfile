@@ -1,24 +1,28 @@
 FROM golang:1.13 as builder
 
-WORKDIR /workspace
+ENV DIR $HOME/go/src/github.com/omeryahud/people-app
+ENV BINARY backend
 
-COPY go.mod go.mod
-COPY go.sum go.sum
+WORKDIR ${DIR}
+
+COPY ./ ./
 
 RUN go mod download
-
-COPY cmd/backend/main.go main.go
-COPY internal/pkg internal/pkg
-
 RUN go mod tidy
 RUN go mod vendor
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build --mod=vendor -a -o backend main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build --mod=vendor -a -o bin/${BINARY} cmd/${BINARY}/main.go
 
 FROM gcr.io/distroless/static:nonroot
 
+ENV DIR $HOME/go/src/github.com/omeryahud/people-app/bin
+ENV BINARY backend
+
 WORKDIR /
-COPY --from=builder /workspace/backend .
+
+COPY --from=builder ${DIR}/${BINARY} .
+
 USER nonroot:nonroot
+
 
 ENTRYPOINT ["/backend"]

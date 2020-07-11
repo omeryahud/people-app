@@ -12,10 +12,12 @@ endif
 BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 
 # Image URL to use all building/pushing image targets
-IMG          ?= quay.io/omeryahud/people-operator:devel
-FRONTEND_IMG ?= quay.io/omeryahud/people-frontend:devel
-BACKEND_IMG  ?= quay.io/omeryahud/people-backend:devel
-DATABASE_IMG ?= quay.io/omeryahud/people-database:devel
+REGISTRY     ?= quay.io/omeryahud
+IMG_TAG      ?= devel
+IMG          ?= ${REGISTRY}/people-operator:${IMG_TAG}
+FRONTEND_IMG ?= ${REGISTRY}/people-frontend:${IMG_TAG}
+BACKEND_IMG  ?= ${REGISTRY}/people-backend:${IMG_TAG}
+DATABASE_IMG ?= ${REGISTRY}/people-database:${IMG_TAG}
 
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
@@ -27,11 +29,22 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
-all: manager database backend frontend
+all: manager frontend backend database
 
 # Run tests
 test: generate fmt vet manifests
 	go test ./... -coverprofile cover.out
+
+test-frontend:
+	echo Testing frontend
+
+test-backend:
+	echo Testing backend
+
+test-database:
+	echo Testing database
+
+test-all: test test-frontend test-backend test-database
 
 # Build manager binary
 manager: generate fmt vet
@@ -71,6 +84,10 @@ deploy: manifests kustomize
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/default | kubectl apply -f -
 
+delete: manifests kustomize
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	$(KUSTOMIZE) build config/default | kubectl delete -f -
+
 # Generate manifests e.g. CRD, RBAC etc.
 manifests: controller-gen
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
@@ -95,41 +112,31 @@ docker-build: test
 docker-build-frontend: test-frontend
 	docker build . -t ${FRONTEND_IMG} -f cmd/frontend/Dockerfile
 
-docker-push-frontend:
-	docker push ${FRONTEND_IMG}
-
-test-frontend:
-	echo Testing frontend
-
 # Build the backend docker image
 docker-build-backend: test-backend
 	docker build . -t ${BACKEND_IMG} -f cmd/backend/Dockerfile
-
-docker-push-backend:
-	docker push ${BACKEND_IMG}
-
-test-backend:
-	echo Testing backend
 
 # Build the database docker image
 docker-build-database: test-database
 	docker build . -t ${DATABASE_IMG} -f cmd/database/Dockerfile
 
-docker-push-database:
-	docker push ${DATABASE_IMG}
-
-test-database:
-	echo Testing database
-
+# Build all docker images
 docker-build-all: docker-build docker-build-frontend docker-build-backend docker-build-database
-
-docker-push-all: docker-push docker-push-frontend docker-push-backend docker-push-database
-
-test-all: test test-frontend test-backend test-database
 
 # Push the docker image
 docker-push:
 	docker push ${IMG}
+
+docker-push-frontend:
+	docker push ${FRONTEND_IMG}
+
+docker-push-backend:
+	docker push ${BACKEND_IMG}
+
+docker-push-database:
+	docker push ${DATABASE_IMG}
+
+docker-push-all: docker-push docker-push-frontend docker-push-backend docker-push-database
 
 # find or download controller-gen
 # download controller-gen if necessary

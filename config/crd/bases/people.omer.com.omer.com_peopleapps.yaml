@@ -36,13 +36,85 @@ spec:
         spec:
           description: PeopleAppSpec defines the desired state of PeopleApp
           properties:
-            foo:
-              description: Foo is an example field of PeopleApp. Edit PeopleApp_types.go
-                to remove/update
-              type: string
+            backendConfig:
+              description: BackendConfig holds configuration for the backend deployment
+              properties:
+                image:
+                  description: Image is the image used for backend pods
+                  type: string
+                replicas:
+                  description: Replicas is the desired amount of backend pods
+                  format: int32
+                  type: integer
+              required:
+              - image
+              - replicas
+              type: object
+            databaseConfig:
+              description: DatabseConfig holds configuration for the database config
+              properties:
+                image:
+                  description: Image is the image used for database pods
+                  type: string
+                replicas:
+                  description: Replicas is the desired amount of database pods
+                  format: int32
+                  type: integer
+              required:
+              - image
+              - replicas
+              type: object
+            frontendConfig:
+              description: FrontendConfig holds configuration for the frontend deployment
+              properties:
+                image:
+                  description: Image is the image used for frontend pods
+                  type: string
+                replicas:
+                  description: Replicas is the desired amount of frontend pods
+                  format: int32
+                  type: integer
+              required:
+              - image
+              - replicas
+              type: object
+          required:
+          - backendConfig
+          - databaseConfig
+          - frontendConfig
           type: object
         status:
           description: PeopleAppStatus defines the observed state of PeopleApp
+          properties:
+            conditions:
+              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                of cluster Important: Run "make" to regenerate code after modifying
+                this file'
+              items:
+                description: Condition represents the state of the operator's reconciliation
+                  functionality.
+                properties:
+                  lastHeartbeatTime:
+                    format: date-time
+                    type: string
+                  lastTransitionTime:
+                    format: date-time
+                    type: string
+                  message:
+                    type: string
+                  reason:
+                    type: string
+                  status:
+                    type: string
+                  type:
+                    description: ConditionType is the state of the operator's reconciliation
+                      functionality.
+                    type: string
+                required:
+                - status
+                - type
+                type: object
+              type: array
           type: object
       type: object
   version: v1alpha1

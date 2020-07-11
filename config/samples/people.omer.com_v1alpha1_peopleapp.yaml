@@ -3,5 +3,12 @@ kind: PeopleApp
 metadata:
   name: peopleapp-sample
 spec:
-  # Add fields here
-  foo: bar
+  frontendConfig:
+    image: quay.io/omeryahud/people-frontend:devel
+    replicas: 1
+  backendConfig:
+    image: quay.io/omeryahud/people-backend:devel
+    replicas: 1
+  databaseConfig:
+    image: quay.io/omeryahud/people-database:devel
+    replicas: 1

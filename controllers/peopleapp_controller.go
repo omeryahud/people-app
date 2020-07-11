@@ -17,14 +17,15 @@ limitations under the License.
 package controllers
 
 import (
-	"context"
-
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	peopleomercomv1alpha1 "github.com/omeryahud/people-app/api/v1alpha1"
+	"github.com/omeryahud/people-app/internal/pkg/operator"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 )
 
 // PeopleAppReconciler reconciles a PeopleApp object
@@ -36,18 +37,17 @@ type PeopleAppReconciler struct {
 
 // +kubebuilder:rbac:groups=people.omer.com.omer.com,resources=peopleapps,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=people.omer.com.omer.com,resources=peopleapps/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;update;patch;delete;list;create
 
 func (r *PeopleAppReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("peopleapp", req.NamespacedName)
-
-	// your logic here
-
-	return ctrl.Result{}, nil
+	return operator.Reconcile(r.Client, r.Log, r.Scheme, req)
 }
 
 func (r *PeopleAppReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&peopleomercomv1alpha1.PeopleApp{}).
+		Owns(&appsv1.Deployment{}).
+		Owns(&corev1.Service{}).
+		Owns(&corev1.ServiceAccount{}).
 		Complete(r)
 }
