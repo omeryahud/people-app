@@ -12,7 +12,11 @@ endif
 BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 
 # Image URL to use all building/pushing image targets
-IMG ?= quay.io/omeryahud/people-operator:devel
+IMG          ?= quay.io/omeryahud/people-operator:devel
+FRONTEND_IMG ?= quay.io/omeryahud/people-frontend:devel
+BACKEND_IMG  ?= quay.io/omeryahud/people-backend:devel
+DATABASE_IMG ?= quay.io/omeryahud/people-database:devel
+
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
 
@@ -86,6 +90,42 @@ generate: controller-gen
 # Build the docker image
 docker-build: test
 	docker build . -t ${IMG}
+
+# Build the frontend docker image
+docker-build-frontend: test-frontend
+	docker build . -t ${FRONTEND_IMG} -f cmd/frontend/Dockerfile
+
+docker-push-frontend:
+	docker push ${FRONTEND_IMG}
+
+test-frontend:
+	echo Testing frontend
+
+# Build the backend docker image
+docker-build-backend: test-backend
+	docker build . -t ${BACKEND_IMG} -f cmd/backend/Dockerfile
+
+docker-push-backend:
+	docker push ${BACKEND_IMG}
+
+test-backend:
+	echo Testing backend
+
+# Build the database docker image
+docker-build-database: test-database
+	docker build . -t ${DATABASE_IMG} -f cmd/database/Dockerfile
+
+docker-push-database:
+	docker push ${DATABASE_IMG}
+
+test-database:
+	echo Testing database
+
+docker-build-all: docker-build docker-build-frontend docker-build-backend docker-build-database
+
+docker-push-all: docker-push docker-push-frontend docker-push-backend docker-push-database
+
+test-all: test test-frontend test-backend test-database
 
 # Push the docker image
 docker-push:
