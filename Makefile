@@ -23,7 +23,7 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
-all: manager
+all: manager database backend frontend
 
 # Run tests
 test: generate fmt vet manifests
@@ -34,6 +34,21 @@ manager: generate fmt vet
 	go mod tidy
 	go mod vendor
 	go build --mod=vendor -o bin/manager main.go
+
+frontend: fmt vet
+	go mod tidy
+	go mod vendor
+	go build --mod=vendor -o bin/frontend cmd/frontend/main.go
+
+backend: fmt vet
+	go mod tidy
+	go mod vendor
+	go build --mod=vendor -o bin/backend cmd/backend/main.go
+
+database: fmt vet
+	go mod tidy
+	go mod vendor
+	go build --mod=vendor -o bin/databse cmd/database/main.go
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
 run: generate fmt vet manifests
