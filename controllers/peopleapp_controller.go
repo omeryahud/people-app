@@ -37,7 +37,9 @@ type PeopleAppReconciler struct {
 
 // +kubebuilder:rbac:groups=people.omer.com.omer.com,resources=peopleapps,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=people.omer.com.omer.com,resources=peopleapps/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;update;patch;delete;list;create
+// +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;update;patch;delete;list;create;watch
+// +kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups="",resources=serviceaccounts,verbs=get;list;watch;create;update;patch;delete
 
 func (r *PeopleAppReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	return operator.Reconcile(r.Client, r.Log, r.Scheme, req)
