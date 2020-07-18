@@ -4,11 +4,11 @@ metadata:
   name: peopleapp-sample
 spec:
   frontendConfig:
-    image: quay.io/omeryahud/people-frontend:devel
+    image: quay.io/omeryahud/people-app-frontend:devel
     replicas: 1
   backendConfig:
-    image: quay.io/omeryahud/people-backend:devel
+    image: quay.io/omeryahud/people-app-backend:devel
     replicas: 1
   databaseConfig:
-    image: quay.io/omeryahud/people-database:devel
+    image: quay.io/omeryahud/people-app-database:devel
     replicas: 1

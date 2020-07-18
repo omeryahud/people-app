@@ -14,10 +14,10 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # Image URL to use all building/pushing image targets
 REGISTRY     ?= quay.io/omeryahud
 IMG_TAG      ?= devel
-IMG          ?= ${REGISTRY}/people-operator:${IMG_TAG}
-FRONTEND_IMG ?= ${REGISTRY}/people-frontend:${IMG_TAG}
-BACKEND_IMG  ?= ${REGISTRY}/people-backend:${IMG_TAG}
-DATABASE_IMG ?= ${REGISTRY}/people-database:${IMG_TAG}
+IMG          ?= ${REGISTRY}/people-app-operator:${IMG_TAG}
+FRONTEND_IMG ?= ${REGISTRY}/people-app-frontend:${IMG_TAG}
+BACKEND_IMG  ?= ${REGISTRY}/people-app-backend:${IMG_TAG}
+DATABASE_IMG ?= ${REGISTRY}/people-app-database:${IMG_TAG}
 
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"

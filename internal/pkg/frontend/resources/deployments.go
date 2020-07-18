@@ -12,9 +12,11 @@ const (
 )
 
 var (
-	deploymentSelector = v1.SetAsLabelSelector(labels.Set{
+	selectorLabels = labels.Set{
 		"app": deploymentName,
-	})
+	}
+
+	deploymentSelector = v1.SetAsLabelSelector(selectorLabels)
 )
 
 func NewDeployment(namespace, image string, replicas int32) *appsv1.Deployment {
@@ -29,6 +31,9 @@ func NewDeployment(namespace, image string, replicas int32) *appsv1.Deployment {
 			Replicas: &replicas,
 			Selector: deploymentSelector,
 			Template: corev1.PodTemplateSpec{
+				ObjectMeta: v1.ObjectMeta{
+					Labels: selectorLabels,
+				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
 						{
