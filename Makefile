@@ -1,7 +1,7 @@
 # Current Operator version
 VERSION ?= 0.0.1
 # Default bundle image tag
-BUNDLE_IMG ?= people-operator:$(VERSION)
+BUNDLE_IMG ?= people-app-operator:$(VERSION)
 # Options for 'bundle-build'
 ifneq ($(origin CHANNELS), undefined)
 BUNDLE_CHANNELS := --channels=$(CHANNELS)
@@ -12,12 +12,20 @@ endif
 BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 
 # Image URL to use all building/pushing image targets
-REGISTRY     ?= quay.io/omeryahud
-IMG_TAG      ?= devel
-IMG          ?= ${REGISTRY}/people-app-operator:${IMG_TAG}
-FRONTEND_IMG ?= ${REGISTRY}/people-app-frontend:${IMG_TAG}
-BACKEND_IMG  ?= ${REGISTRY}/people-app-backend:${IMG_TAG}
-DATABASE_IMG ?= ${REGISTRY}/people-app-database:${IMG_TAG}
+REGISTRY     		?= quay.io/omeryahud
+IMG_TAG      		?= devel
+
+IMAGE_NAME 			?= people-app-operator
+IMG          		?= ${REGISTRY}/${IMAGE_NAME}:${IMG_TAG}
+
+FRONTEND_IMAGE_NAME ?= people-app-frontend
+FRONTEND_IMG 		?= ${REGISTRY}/${FRONTEND_IMAGE_NAME}:${IMG_TAG}
+
+BACKEND_IMAGE_NAME  ?= people-app-backend
+BACKEND_IMG  		?= ${REGISTRY}/${BACKEND_IMAGE_NAME}:${IMG_TAG}
+
+DATABASE_IMAGE_NAME ?= people-app-database
+DATABASE_IMG 		?= ${REGISTRY}/${DATABASE_IMAGE_NAME}:${IMG_TAG}
 
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
@@ -74,6 +82,7 @@ run: generate fmt vet manifests
 # Install CRDs into a cluster
 install: manifests kustomize
 	$(KUSTOMIZE) build config/crd | kubectl apply -f -
+	$(KUSTOMIZE) build config/samples | kubectl apply -f -
 
 # Uninstall CRDs from a cluster
 uninstall: manifests kustomize
@@ -82,19 +91,41 @@ uninstall: manifests kustomize
 # Deploy controller in the configured Kubernetes cluster in ~/.kube/config
 deploy: manifests kustomize
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default | kubectl apply -f -
+	$(KUSTOMIZE) build config/default | \
+	FRONTEND_IMAGE=${FRONTEND_IMG} \
+	BACKEND_IMAGE=${BACKEND_IMG} \
+	DATABASE_IMAGE=${DATABASE_IMG} envsubst | \
+	kubectl apply -f -
 
 undeploy: manifests kustomize
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default | kubectl delete -f -
+	$(KUSTOMIZE) build config/default | \
+	FRONTEND_IMAGE=${FRONTEND_IMG} \
+	BACKEND_IMAGE=${BACKEND_IMG} \
+	DATABASE_IMAGE=${DATABASE_IMG} envsubst | \
+	kubectl delete -f - || exit 0
 
-deploy-install : deploy install
+redeploy: undeploy deploy
+
+deploy-install: deploy install
 
 undeploy-install: uninstall undeploy
+
+redeploy-install: undeploy-install deploy-install
 
 delete: manifests kustomize
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/default | kubectl delete -f -
+
+refresh: docker-build docker-push redeploy-install
+
+refresh-frontend: docker-build-frontend docker-push-frontend redeploy-install
+
+refresh-backend: docker-build-backend docker-push-backend redeploy-install
+
+refresh-database: docker-build-database docker-push-database redeploy-install
+
+refresh-all: refresh refresh-frontend refresh-backend refresh-redeploy-install
 
 # Generate manifests e.g. CRD, RBAC etc.
 manifests: controller-gen

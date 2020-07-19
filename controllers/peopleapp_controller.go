@@ -22,8 +22,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	peopleomercomv1alpha1 "github.com/omeryahud/people-app/api/v1alpha1"
-	"github.com/omeryahud/people-app/internal/pkg/operator"
+	apiv1alpha1 "github.com/omeryahud/people-app/api/v1alpha1"
+	"github.com/omeryahud/people-app/internal/pkg/operator/reconcile"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -35,19 +35,19 @@ type PeopleAppReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=people.omer.com.omer.com,resources=peopleapps,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=people.omer.com.omer.com,resources=peopleapps/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=api.peopleapp.io,resources=peopleapps,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=api.peopleapp.io,resources=peopleapps/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;update;patch;delete;list;create;watch
 // +kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups="",resources=serviceaccounts,verbs=get;list;watch;create;update;patch;delete
 
 func (r *PeopleAppReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	return operator.Reconcile(r.Client, r.Log, r.Scheme, req)
+	return reconcile.Reconcile(r.Client, r.Log, r.Scheme, req)
 }
 
 func (r *PeopleAppReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&peopleomercomv1alpha1.PeopleApp{}).
+		For(&apiv1alpha1.PeopleApp{}).
 		Owns(&appsv1.Deployment{}).
 		Owns(&corev1.Service{}).
 		Owns(&corev1.ServiceAccount{}).

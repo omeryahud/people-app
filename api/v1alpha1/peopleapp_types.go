@@ -17,7 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	conditionsv1 "github.com/openshift/custom-resource-status/conditions/v1"
+	v1 "github.com/openshift/custom-resource-status/conditions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -29,45 +29,50 @@ type PeopleAppSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// FrontendConfig holds configuration for the frontend deployment
-	FrontendConfig FrontendConfig `json:"frontendConfig"`
+	// Defines desired state for frontend pods
+	FrontendSpec FrontendSpec `json:"frontendSpec"`
 
-	// BackendConfig holds configuration for the backend deployment
-	BackendConfig BackendConfig `json:"backendConfig"`
+	// Defines desired state for backend pods
+	BackendSpec BackendSpec `json:"backendSpec"`
 
-	// DatabseConfig holds configuration for the database config
-	DatabaseConfig DatabaseConfig `json:"databaseConfig"`
+	// Defines desired state for database pods
+	DatabaseSpec DatabaseSpec `json:"databaseSpec"`
 }
 
-// FrontendConfig defines the configurations of the frontend deployment
-type FrontendConfig struct {
-	// Image is the image used for frontend pods
-	Image string `json:"image"`
-	// Replicas is the desired amount of frontend pods
-	Replicas int32 `json:"replicas"`
+// FrontendSpec defines the desired state for frontend deployment
+type FrontendSpec struct {
+	// Replicas is the replica count for pods
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// HttpPort is the port pods should listen on
+	HttpPort int32 `json:"httpPort"`
 }
 
-// BackendConfig defines the configurations of the backend deployment
-type BackendConfig struct {
-	// Image is the image used for backend pods
-	Image string `json:"image"`
-	// Replicas is the desired amount of backend pods
-	Replicas int32 `json:"replicas"`
+// BackendSpec defines the desired state for backend deployment
+type BackendSpec struct {
+	// Replicas is the replica count for pods
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// HttpPort is the port pods should listen on
+	HttpPort int32 `json:"httpPort"`
 }
 
-// DatabaseConfig defines the configurations of the database deployment
-type DatabaseConfig struct {
-	// Image is the image used for database pods
-	Image string `json:"image"`
-	// Replicas is the desired amount of database pods
-	Replicas int32 `json:"replicas"`
+// DatabaseSpec defines the desired state for database deployment
+type DatabaseSpec struct {
+	// Replicas is the replica count for  pods
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// HttpPort is the port pods should listen on
+	HttpPort int32 `json:"httpPort"`
 }
 
 // PeopleAppStatus defines the observed state of PeopleApp
 type PeopleAppStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	Conditions []conditionsv1.Condition `json:"conditions,omitempty"`
+
+	// Conditions hold the condition of the deployment
+	Conditions []v1.Condition `json:"conditions,omitempty"`
 }
 
 // +kubebuilder:object:root=true

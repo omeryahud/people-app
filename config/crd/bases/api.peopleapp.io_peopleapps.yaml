@@ -1,0 +1,128 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.3.0
+  creationTimestamp: null
+  name: peopleapps.api.peopleapp.io
+spec:
+  group: api.peopleapp.io
+  names:
+    kind: PeopleApp
+    listKind: PeopleAppList
+    plural: peopleapps
+    singular: peopleapp
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: PeopleApp is the Schema for the peopleapps API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: PeopleAppSpec defines the desired state of PeopleApp
+          properties:
+            backendSpec:
+              description: Defines desired state for backend pods
+              properties:
+                httpPort:
+                  description: HttpPort is the port pods should listen on
+                  format: int32
+                  type: integer
+                replicas:
+                  description: Replicas is the replica count for pods
+                  format: int32
+                  type: integer
+              required:
+              - httpPort
+              type: object
+            databaseSpec:
+              description: Defines desired state for database pods
+              properties:
+                httpPort:
+                  description: HttpPort is the port pods should listen on
+                  format: int32
+                  type: integer
+                replicas:
+                  description: Replicas is the replica count for  pods
+                  format: int32
+                  type: integer
+              required:
+              - httpPort
+              type: object
+            frontendSpec:
+              description: Defines desired state for frontend pods
+              properties:
+                httpPort:
+                  description: HttpPort is the port pods should listen on
+                  format: int32
+                  type: integer
+                replicas:
+                  description: Replicas is the replica count for pods
+                  format: int32
+                  type: integer
+              required:
+              - httpPort
+              type: object
+          required:
+          - backendSpec
+          - databaseSpec
+          - frontendSpec
+          type: object
+        status:
+          description: PeopleAppStatus defines the observed state of PeopleApp
+          properties:
+            conditions:
+              description: Conditions hold the condition of the deployment
+              items:
+                description: Condition represents the state of the operator's reconciliation
+                  functionality.
+                properties:
+                  lastHeartbeatTime:
+                    format: date-time
+                    type: string
+                  lastTransitionTime:
+                    format: date-time
+                    type: string
+                  message:
+                    type: string
+                  reason:
+                    type: string
+                  status:
+                    type: string
+                  type:
+                    description: ConditionType is the state of the operator's reconciliation
+                      functionality.
+                    type: string
+                required:
+                - status
+                - type
+                type: object
+              type: array
+          type: object
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

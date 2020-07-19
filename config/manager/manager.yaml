@@ -20,6 +20,7 @@ spec:
   template:
     metadata:
       labels:
+        app: people-operator
         control-plane: controller-manager
     spec:
       containers:
@@ -30,4 +31,10 @@ spec:
         image: controller:latest
         imagePullPolicy: Always
         name: manager
-      terminationGracePeriodSeconds: 10
+        env:
+        - name: FRONTEND_IMAGE
+          value: $FRONTEND_IMAGE
+        - name: BACKEND_IMAGE
+          value: $BACKEND_IMAGE
+        - name: DATABASE_IMAGE
+          value: $DATABASE_IMAGE

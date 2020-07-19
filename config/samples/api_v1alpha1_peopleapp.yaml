@@ -1,0 +1,14 @@
+apiVersion: api.peopleapp.io/v1alpha1
+kind: PeopleApp
+metadata:
+  name: peopleapp-sample
+spec:
+  frontendSpec:
+    replicas: 2
+    httpPort: 8080
+  backendSpec:
+    replicas: 2
+    httpPort: 8080
+  databaseSpec:
+    replicas: 2
+    httpPort: 8080

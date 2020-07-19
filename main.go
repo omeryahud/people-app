@@ -27,8 +27,9 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	peopleomercomv1alpha1 "github.com/omeryahud/people-app/api/v1alpha1"
+	apiv1alpha1 "github.com/omeryahud/people-app/api/v1alpha1"
 	"github.com/omeryahud/people-app/controllers"
+	"github.com/omeryahud/people-app/internal/pkg/operator"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -40,11 +41,18 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(peopleomercomv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(apiv1alpha1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }
 
 func main() {
+	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
+
+	if err := operator.ValidateEnvironmentVariables(); err != nil {
+		setupLog.Error(err, err.Error())
+		os.Exit(2)
+	}
+
 	var metricsAddr string
 	var enableLeaderElection bool
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
@@ -53,14 +61,12 @@ func main() {
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.Parse()
 
-	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
-
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
 		MetricsBindAddress: metricsAddr,
 		Port:               9443,
 		LeaderElection:     enableLeaderElection,
-		LeaderElectionID:   "de307708.omer.com",
+		LeaderElectionID:   "de307708.people.io",
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")

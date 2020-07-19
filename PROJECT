@@ -2,7 +2,7 @@ domain: peopleapp.io
 layout: go.kubebuilder.io/v2
 repo: github.com/omeryahud/people-app
 resources:
-- group: people.omer.com
+- group: api
   kind: PeopleApp
   version: v1alpha1
 version: 3-alpha
